@@ -35,10 +35,12 @@ int main(int argc, char *argv[]){
 		double delta = (count+0.5)/n;
 		local = 4/(1+delta*delta);
 		cout<<me<<"\t"<<i<<"\t"<<local<<endl;
-		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Reduce(&local,&res,count,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
-		count+=i;
+		//MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Reduce(&local,&res,1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
+		count+=numprocs;
 	}
+	MPI_Barrier(MPI_COMM_WORLD);
+		
 	if(me==0)
 		cout<<"Suma total: "<<res/n<<endl;
 	

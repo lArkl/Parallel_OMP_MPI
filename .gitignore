@@ -27,3 +27,6 @@
 *.out
 *.app
 
+# Documents
+*.pptx
+*.pdf
