@@ -4,7 +4,7 @@
 using namespace std;
 
 #define _PARALLEL
-
+#define _SINGLE
 #ifdef _PARALLEL
 #include <mpi.h>
 #endif
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
 	if(me==0)
 		cout<<"n\tPI\tError\t\tTime"<<endl;
 	for(int n=100;n<1000000;n*=10){
-		double start = MPI_Wtime();
+		double start;
 		double local=0;
 		int rounds = n/numprocs;
 		int extra = n%numprocs;
@@ -31,6 +31,7 @@ int main(int argc, char *argv[]){
 			//MPI_Barrier(MPI_COMM_WORLD);
 			count+=numprocs;
 		}
+		start = MPI_Wtime();		
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Reduce(&local,&res,1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);	
 		if(me==0){
@@ -43,8 +44,8 @@ int main(int argc, char *argv[]){
 			}
 			double time = (MPI_Wtime()-start)*1000;
 			double pi = res/n;
-			cout<<time<<endl;
-			//cout<<n<<"\t"<<pi<<"\t"<< pi-3.141592653589793238462643<<"\t"<<time<<endl;
+			//cout<<time<<endl;
+			cout<<n<<"\t"<<pi<<"\t"<< pi-3.141592653589793238462643<<"\t"<<time<<endl;
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 	}

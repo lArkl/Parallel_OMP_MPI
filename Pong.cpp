@@ -6,7 +6,7 @@
 using namespace std;
 
 #define _PARALLEL
-
+#define _SINGLE
 #ifdef _PARALLEL
 #include <mpi.h>
 #endif
@@ -48,21 +48,22 @@ int main(int argc, char *argv[]){
 	int A,B;
 	int count=0;
 	if(me==0)
-		cout<<"A\tB\tT"<<endl;
+		cout<<"Pase\tTam\tT"<<endl;
 	for(int i=1;i<=max;i*=2){
 		A = count%2;
 		B = 1-A;
 		count++;
 		if(me == A){
-			//global.resize(5);
-			MPI_Send(&global[0],global.size(),MPI_FLOAT,B,A,MPI_COMM_WORLD);
+			global.resize(i);
+			MPI_Send(&global[0],1,MPI_FLOAT,B,A,MPI_COMM_WORLD);
 		}else 
 			if (me == B){
-				MPI_Recv(&global[0],global.size(),MPI_FLOAT,A,A,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+				MPI_Recv(&global[0],1,MPI_FLOAT,A,A,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 			}
 		if(me==0){
 			double time = (MPI_Wtime()-start)*1000;
-			cout<<A<<"\t"<<B<<"\t"<<time<<endl;
+			//cout<<A<<"\t"<<B<<"\t"<<time<<endl;
+			cout<<count<<"\t"<<i<<"\t"<<time<<endl;
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 	}

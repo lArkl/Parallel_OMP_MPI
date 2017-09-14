@@ -32,9 +32,9 @@ int main(int argc, char *argv[]){
 	//Asignamos los valores
 	#ifdef _PARALLEL
 	if(me==0){
-		start = MPI_Wtime();
 		for(int i=0;i<max;i++)
 			global[i] = rand()%100;
+		start = MPI_Wtime();		
 	}
 	int local[rounds];
 	#endif
