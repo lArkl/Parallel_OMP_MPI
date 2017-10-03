@@ -1,0 +1,53 @@
+select sum(salario) as suma, max(salario) as salario_max, min(salario) as salario_min , avg(salario) 
+as salario_prom from empleado;
+select * from departamento;
+select * from empleado;
+select * from departamento;
+\d
+select * from trabaja_en ;
+\d empleado;
+\d departamento:
+\d departamento;
+select nd from empleado;
+select numerod from departamento;
+select sum(salario) as suma, max(salario) as max, min(salario) as min , avg(salario) as prom from emp
+leado e , departamento d where e.nd = d.numerod;
+select sum(salario) as suma, max(salario) as salario_max, min(salario) as salario_min , avg(salario) as salario_prom from empleado;
+select sum(salario) as suma, max(salario) as max, min(salario) as min , avg(salario) as prom from empleado e where e.nd = departamento.numerod;
+select sum(salario) as suma, max(salario) as max, min(salario) as min , avg(salario) as prom from empleado where empleado.nd = departamento.numerod;
+select * from empleado where nd = (select numeroid from departamento where nombre = 'INVESTIGACION');
+select * from empleado where nd = (select numerod from departamento where nombre = 'INVESTIGACION');
+\d departamento;
+select * from empleado where nd = (select numerod from departamento where nombred = 'INVESTIGACION');
+select sum(salario) as suma, max(salario) as max, min(salario) as min , avg(salario) as prom from empleado e, departamento d where e.nd=d.numerod and nombrered='INVESTIGACION';
+select sum(salario) as suma, max(salario) as max, min(salario) as min , avg(salario) as prom from empleado e, departamento d where e.nd=d.numerod and nombred='INVESTIGACION';
+select sum(salario) as suma, max(salario) as max, min(salario) as min , avg(salario) as prom from empleado e, departamento d where e.nd=d.numerod and nombred='INVESTIGACION';
+select * from empleados e, departamentos d where e.nd = d.numerod and nombred='INVESTIGACION';
+select count(*) total from empleados e, departamentos d where e.nd = d.numerod and nombred='INVESTIGACION';
+select count(*) as total from empleado e, departamentos d where e.nd = d.numerod and nombred='INVESTIGACION';
+select count(*) as total from empleado e, departamento d where e.nd = d.numerod and nombred='INVESTIGACION';
+select * as total from empleado e, departamento d where e.nd = d.numerod and nombred='INVESTIGACION';
+select * total from empleado e, departamento d where e.nd = d.numerod and nombred='INVESTIGACION';
+select * from empleado e, departamento d where e.nd = d.numerod and nombred='INVESTIGACION';
+select distinct salario from empleado;
+select salario from empleado;
+select count(distinct salario) from empleado;
+\d dependiente
+select * from dependiente;
+\d
+select nombre from empleado;
+select nombre from empleado e, dependiente d where e.nss=d.nsse;
+select nombre, apellido from empleado e, dependiente d where e.nss=d.nsse;
+select nombre, apellido from empleado where (select count(*) from dependiente where nss = nsse)>=2;
+select sexo from empleado;
+select sexo from empleado group by sexo;
+select sexo,count(sexo) from empleado group by sexo;
+select nd, count(*) as cantidad, avg(salario) from empleado group by nd;
+\d proyecto
+\d trabaja_en 
+select numerop, nombrep, count(*) from proyecto, trabaja_en where numerop=np group by numerop,nombrep;
+select * from proyecto ;
+select sexo, count(sexo) from empleado where substr(apellido,2,1)='U' group by sexo;
+select numerop,nombrep,count(*) from proyecto,trabaja_en where numerop=np group by numerop,nombrep having count(*)>2;
+
+
