@@ -25,9 +25,7 @@ int nsteps,                 	/* number of time steps */
 double values[MAXPOINTS+2], 	/* values at time t */
        oldval[MAXPOINTS+2], 	/* values at time (t-dt) */
        newval[MAXPOINTS+2], 	/* values at time (t+dt) */
-		oldval2[MAXPOINTS/2+2], 	/* values at time (t-dt) */
-       newval2[MAXPOINTS/2+2], 	/* values at time (t+dt) */
-		
+		oldval2[MAXPOINTS+2], 	/* values at time (t-dt) */
 			total[MAXPOINTS+2];
 /***************************************************************************
  *	Obtains input values from user
@@ -96,7 +94,7 @@ void do_math(int i)
    c = 1.0;
    tau = (c * dtime / dx);
    sqtau = tau * tau;
-   newval[i] = (2.0 * values[i]) - oldval[i] 
+   newval[i] = (2.0 * values[i]) - oldval2[i] 
                + (sqtau * (values[i-1] - (2.0 * values[i]) + values[i+1]));
 }
 
@@ -107,12 +105,11 @@ void do_math(int i)
 
 void update(int left, int right)
 {
-   /* Update values for each time step */
+   MPI_Scatter(&oldval,rounds+2,MPI_DOUBLE, &oldval2,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
+	/* Update values for each time step */
    for (int i = 1; i<= nsteps; i++) {
 
 		MPI_Scatter(&total,rounds+2,MPI_DOUBLE, &values,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-		MPI_Scatter(&oldval,rounds+2,MPI_DOUBLE, &oldval2,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-		MPI_Scatter(&newval,rounds+2,MPI_DOUBLE, &newval2,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
 		char buffer[20];
 		
 		sprintf (buffer, "%04d.dat", i);
@@ -133,7 +130,7 @@ void update(int left, int right)
       /* Update points along line for this time step */
       for (int j = 1; j <= rounds; j++) {
          /* global endpoints */
-         if ((j == 1) || (j  == rounds))
+         if ((j == 1 && first  == 1) || (j==rounds && first+rounds-1==tpoints))
             newval[j] = 0.0;
          else
             do_math(j);
@@ -144,15 +141,13 @@ void update(int left, int right)
       /* Update old values with new values */
       for (int j = 1; j <= rounds; j++) {
          oldval2[j] = values[j];
-         values[j] = newval2[j];
+         values[j] = newval[j];
       //   fprintf(fp, "%f, %f\n", j/(float)tpoints,values[j]);
 		}
 		
 		
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Gather(&values,rounds+2,MPI_DOUBLE, &total,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-		MPI_Gather(&oldval2,rounds+2,MPI_DOUBLE, &oldval,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-		MPI_Gather(&newval2,rounds+2,MPI_DOUBLE, &newval,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
 		if(right == 1){
 			FILE *fp;
 			fp = fopen(buffer, "w");
@@ -164,9 +159,12 @@ void update(int left, int right)
 				fprintf(fp, "%f, %f\n", j/(double)tpoints,total[j]);
 			}
 			fclose(fp);
-		}			
+		}
+					
 
 	}
+	MPI_Gather(&oldval2,rounds+2,MPI_DOUBLE, &oldval,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
+		
 }
 
 /***************************************************************************
@@ -188,7 +186,7 @@ void printfinal()
 int main(int argc, char *argv[])
 {
 
-	tpoints = 100;
+	tpoints = 1024;
 	nsteps = 300;
 	
 	int me,numprocs;	
@@ -203,7 +201,8 @@ int main(int argc, char *argv[])
 	}	
 	int left = me-1;
 	int right = me+1;
-	update(left,right);
+	MPI_Barrier(MPI_COMM_WORLD);
+		update(left,right);
 	if(me==0){
 		cout<<"Printing final results..."<<endl;
 		printfinal();
