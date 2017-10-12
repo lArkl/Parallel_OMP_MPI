@@ -102,52 +102,53 @@ void do_math(int i)
  *     Update all values along line a specified number of times
  **************************************************************************/
 
+void moveleft(double *value){
+	for(int i=rounds;i>0;i--)
+		value[i] = value[i-1];
+}
 
 void update(int left, int right)
 {
-   MPI_Scatter(&oldval,rounds+2,MPI_DOUBLE, &oldval2,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
+   MPI_Scatter(&oldval,rounds,MPI_DOUBLE, &oldval2,rounds,MPI_DOUBLE,0,MPI_COMM_WORLD);
 	/* Update values for each time step */
+   
+   moveleft(oldval2);
    for (int i = 1; i<= nsteps; i++) {
 
-		MPI_Scatter(&total,rounds+2,MPI_DOUBLE, &values,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-		char buffer[20];
-		
+		MPI_Scatter(&total,rounds,MPI_DOUBLE, &values,rounds,MPI_DOUBLE,0,MPI_COMM_WORLD);
+		char buffer[20];	
+		moveleft(values);
+		values[0]=0;
+		values[rounds+1]=0;
+		newval[0]=0;
+		newval[rounds+1]=0;
 		sprintf (buffer, "%04d.dat", i);
-		
-      int first = (left+1)*rounds+1;
+		int first = (left+1)*rounds+1;
 		if (first != 1) {
          MPI_Send(&values[1], 1, MPI_DOUBLE, left,0, MPI_COMM_WORLD);
-         MPI_Recv(&values[0], 1, MPI_DOUBLE, left, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-         }
+         MPI_Recv(&values[0], 1, MPI_DOUBLE, left,0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		}
       /* Exchange data with "right-hand" neighbor */
       if (first +rounds-1!= tpoints) {
          MPI_Send(&values[rounds], 1, MPI_DOUBLE, right, 0, MPI_COMM_WORLD);
          MPI_Recv(&values[rounds+1], 1, MPI_DOUBLE, right, 0,
                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-         }
-
+		}
 		MPI_Barrier(MPI_COMM_WORLD);
       /* Update points along line for this time step */
       for (int j = 1; j <= rounds; j++) {
          /* global endpoints */
-         if ((j == 1 && first  == 1) || (j==rounds && first+rounds-1==tpoints))
-            newval[j] = 0.0;
-         else
             do_math(j);
 		}
-
-      
-      
+           
       /* Update old values with new values */
-      for (int j = 1; j <= rounds; j++) {
-         oldval2[j] = values[j];
-         values[j] = newval[j];
-      //   fprintf(fp, "%f, %f\n", j/(float)tpoints,values[j]);
+		for (int j = 1; j <= rounds; j++) {
+			oldval2[j] = values[j];
+			values[j] = newval[j];
 		}
 		
-		
 		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Gather(&values,rounds+2,MPI_DOUBLE, &total,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
+		MPI_Gather(&values,rounds,MPI_DOUBLE, &total,rounds,MPI_DOUBLE,0,MPI_COMM_WORLD);
 		if(right == 1){
 			FILE *fp;
 			fp = fopen(buffer, "w");
@@ -160,11 +161,7 @@ void update(int left, int right)
 			}
 			fclose(fp);
 		}
-					
-
-	}
-	MPI_Gather(&oldval2,rounds+2,MPI_DOUBLE, &oldval,rounds+2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-		
+	}		
 }
 
 /***************************************************************************
@@ -202,7 +199,7 @@ int main(int argc, char *argv[])
 	int left = me-1;
 	int right = me+1;
 	MPI_Barrier(MPI_COMM_WORLD);
-		update(left,right);
+	update(left,right);
 	if(me==0){
 		cout<<"Printing final results..."<<endl;
 		printfinal();
