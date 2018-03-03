@@ -1,0 +1,33 @@
+=================================================================================================
+
+Ejercicio 1
+=================================================================================================
+Para 10⁶ iteraciones con 4 procesos/hilos se tuvo:
+MPI Time: 0.0106843
+OMP Time: 1.08908
+
+
+
+=================================================================================================
+
+Ejercicio 2
+=================================================================================================
+							|MPI	|OMP	|Hibrido|
+------------------------------------------
+Inicializacion			|Sec	|Sec	|Sec
+Calculo de Fuerzas	|MPI	|OMP	|MPI/OMP
+Loop						|Sec	|Sec	|Sec
+Actualizacion			|MPI	|OMP	|MPI
+
+Tiempos para N=1024, dt = 0.001 con 4 procesos/hilos para MPI/OMP y 2/2 para el hibrido.
+
+MPI Time: 9.23186
+OMP Time: 3.63779
+Hybrid Time: 17.541
+
+Observamos que OMP es más eficiente ya que la implementación MPI y el hibrido
+invierten mucho tiempo en la comunicación entre procesos, para dicho tamaño de cuerpos.
+Cabe resaltar que:
+1) Mi implementación MPI e híbrida del usan bcast muy seguido, modificando esto se podría ahorrar muchisimo tiempo acumulado.
+2) Para un dt menor y un numero de cuerpos mayor, la eficiencia podría darle la ventaja a MPI.
+

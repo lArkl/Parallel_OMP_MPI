@@ -6,7 +6,7 @@ using namespace std;
 #define _PARALLEL
 #define _SINGLE
 #ifdef _PARALLEL
-#include <mpi.h>
+//#include <mpi.h>
 #endif
 
 int main(int argc, char *argv[]){
@@ -54,13 +54,15 @@ int main(int argc, char *argv[]){
 	/*
 	#ifdef _SINGLE
 	cout<<"n\tPI"<<endl;
-	for(n=100; n<=1000000; n*=10){
-		res = 0;
-		for(int i=1; i<=n; i++){
+	double start = clock();
+	for(int n=10000; n<=1000000; n*=10){
+		double sum = 0.0;
+		for(int i=0; i<=n; i++){
 			double delta = (i-0.5)/n;
 			sum += 4/(1+delta*delta);
 		}
-		cout<<n<<"\t"<<res/n<<endl;
+		double end = clock();
+		cout<<n<<"\t"<<sum/n<<"\ttime: "<<(end-start)/CLOCKS_PER_SEC<<endl;
 	}
 	#endif
 	*/

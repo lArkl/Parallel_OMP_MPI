@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
 	int const max = 10000;
 	ru.seed(-max,max);
 	int dc = 0,ds =0;
-	int num_trails=100000000;
+	int num_trails=1000000;
 	int resn,ress;
 	int rounds = num_trails/numprocs;
 
@@ -63,8 +63,10 @@ int main(int argc, char *argv[]){
 	double start = MPI_Wtime();
 
 	for(int i=0; i<rounds ; i++){
-		x=ru.drandom()/max;
-		y=ru.drandom()/max;
+		x=rand()/RAND_MAX;
+		y=rand()/RAND_MAX;
+		//x=ru.drandom()/max;
+		//y=ru.drandom()/max;
 		if(x*x + y*y<1){
 			dc++;
 		}
